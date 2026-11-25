@@ -1,0 +1,22 @@
+name: Fix trailing newlines
+
+on:
+  workflow_dispatch:
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Strip trailing newlines
+        run: |
+          python3 -c "import pathlib; [pathlib.Path(p).write_bytes(pathlib.Path(p).read_bytes().rstrip(b'\n')) for p in ('package.json', '.makefun/owner.json')]"
+      - name: Commit if changed
+        run: |
+          git config user.name "Rahulboss7788"
+          git config user.email "Rahulboss7788@users.noreply.github.com"
+          git add package.json .makefun/owner.json
+          git diff --cached --quiet || git commit -m "Strip trailing newlines from package.json and .makefun/owner.json"
+          git push
